@@ -14,9 +14,11 @@
         "league/flysystem-aws-s3-v3": "^3.32",
         "minishlink/web-push": "^10.0",
         "predis/predis": "^3.4",
-        "spatie/laravel-permission": "^7.3"
+        "spatie/laravel-permission": "^7.3",
+        "twilio/sdk": "^8.11"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^3.7",
         "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.2.5",
         "laravel/pint": "^1.27",

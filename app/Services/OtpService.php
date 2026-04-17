@@ -4,41 +4,58 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Redis;
-use RuntimeException;
+use App\Exceptions\TooManyOtpAttemptsException;
+use Illuminate\Contracts\Hashing\Hasher;
+use Illuminate\Contracts\Redis\Factory as RedisFactory;
 
 class OtpService
 {
-    private const TTL = 300; // 5 minutes
-    private const MAX_ATTEMPTS = 3;
+    private const int TTL = 300;
+    private const int MAX_ATTEMPTS = 3;
+
+    public function __construct(
+        private readonly RedisFactory $redis,
+        private readonly Hasher $hasher,
+    ) {}
+
+    private function conn(): \Illuminate\Redis\Connections\PredisConnection
+    {
+        /** @var \Illuminate\Redis\Connections\PredisConnection */
+        return $this->redis->connection(); // @phpstan-ignore-line
+    }
 
     public function generate(string $celular): string
     {
         $codigo = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        Redis::setex("otp:{$celular}", self::TTL, bcrypt($codigo));
-        Redis::setex("otp_tries:{$celular}", self::TTL, '0');
+        $this->conn()->setex("otp:{$celular}", self::TTL, $this->hasher->make($codigo));
+        $this->conn()->setex("otp_tries:{$celular}", self::TTL, '0');
 
         return $codigo;
     }
 
+    /**
+     * @throws TooManyOtpAttemptsException
+     */
     public function verify(string $celular, string $codigo): bool
     {
-        $tries = (int) (Redis::get("otp_tries:{$celular}") ?? 0);
+        $conn = $this->conn();
+
+        $tries = (int) ($conn->get("otp_tries:{$celular}") ?? 0);
 
         if ($tries >= self::MAX_ATTEMPTS) {
-            throw new RuntimeException('Muitas tentativas. Solicite um novo código.');
+            throw new TooManyOtpAttemptsException();
         }
 
-        Redis::incr("otp_tries:{$celular}");
+        $conn->incr("otp_tries:{$celular}");
 
-        $hash = Redis::get("otp:{$celular}");
+        $hash = $conn->get("otp:{$celular}");
 
-        if (! $hash || ! password_verify($codigo, $hash)) {
+        if (! $hash || ! $this->hasher->check($codigo, $hash)) {
             return false;
         }
 
-        Redis::del("otp:{$celular}", "otp_tries:{$celular}");
+        $conn->del("otp:{$celular}", "otp_tries:{$celular}");
 
         return true;
     }
