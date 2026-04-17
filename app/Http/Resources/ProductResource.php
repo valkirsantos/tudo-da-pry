@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources;
 
+use App\Services\S3PresignedService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -26,7 +27,7 @@ class ProductResource extends JsonResource
                 $this->relationLoaded('photos'),
                 fn () => $this->photos->map(fn ($photo) => [
                     'id' => $photo->id,
-                    'url' => app('s3-presigned')->generateDownloadUrl($photo->path_s3),
+                    'url' => app(S3PresignedService::class)->generateDownloadUrl($photo->path_s3),
                     'ordem' => $photo->ordem,
                 ])
             ),
