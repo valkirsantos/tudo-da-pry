@@ -74,8 +74,9 @@ async function verifyOtp() {
   error.value   = ''
   loading.value = true
   try {
-    await auth.verifyOtp(celular.value, codigo)
-    const redirect = route.query.redirect || '/catalogo'
+    const user = await auth.verifyOtp(celular.value, codigo)
+    const defaultRedirect = user.role === 'vendedor' ? '/vendedor/dashboard' : '/catalogo'
+    const redirect = route.query.redirect || defaultRedirect
     router.push(redirect)
   } catch (e) {
     error.value        = e.response?.data?.message || 'Código inválido'
