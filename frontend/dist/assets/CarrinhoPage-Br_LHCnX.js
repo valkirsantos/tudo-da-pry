@@ -1,1 +1,0 @@
-import{P as o,a as s}from"./PryBottomNav-B4ASE5Vl.js";import{_ as t,c as r,a as e,b as c,o as n}from"./index-jYlBVexq.js";const _={class:"page"},p={__name:"CarrinhoPage",setup(m){return(i,a)=>(n(),r("div",_,[e(o),a[0]||(a[0]=c("main",{class:"page__content"},null,-1)),e(s)]))}},f=t(p,[["__scopeId","data-v-140286fc"]]);export{f as default};

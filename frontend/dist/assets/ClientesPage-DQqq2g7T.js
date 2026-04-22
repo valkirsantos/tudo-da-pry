@@ -1,1 +1,0 @@
-import{P as s,a as t}from"./PryBottomNav-B4ASE5Vl.js";import{_ as o,c as r,a,b as c,o as n}from"./index-jYlBVexq.js";const _={class:"page"},p={__name:"ClientesPage",setup(l){return(m,e)=>(n(),r("div",_,[a(s),e[0]||(e[0]=c("main",{class:"page__content"},null,-1)),a(t)]))}},f=o(p,[["__scopeId","data-v-de9ca551"]]);export{f as default};

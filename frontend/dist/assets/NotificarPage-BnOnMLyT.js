@@ -1,1 +1,0 @@
-import{P as o,a as t}from"./PryBottomNav-B4ASE5Vl.js";import{_ as s,c as r,a as e,b as c,o as _}from"./index-jYlBVexq.js";const n={class:"page"},p={__name:"NotificarPage",setup(i){return(m,a)=>(_(),r("div",n,[e(o),a[0]||(a[0]=c("main",{class:"page__content"},null,-1)),e(t)]))}},d=s(p,[["__scopeId","data-v-99e1fb58"]]);export{d as default};
