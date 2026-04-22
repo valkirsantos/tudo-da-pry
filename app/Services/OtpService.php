@@ -18,10 +18,9 @@ class OtpService
         private readonly Hasher $hasher,
     ) {}
 
-    private function conn(): \Illuminate\Redis\Connections\PredisConnection
+    private function conn(): \Illuminate\Redis\Connections\Connection
     {
-        /** @var \Illuminate\Redis\Connections\PredisConnection */
-        return $this->redis->connection(); // @phpstan-ignore-line
+        return $this->redis->connection();
     }
 
     public function generate(string $celular): string

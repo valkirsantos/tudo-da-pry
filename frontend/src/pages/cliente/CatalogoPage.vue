@@ -2,6 +2,7 @@
 import { ref, watch, onMounted } from 'vue'
 import { useIntersectionObserver } from '@vueuse/core'
 import api from '@/services/api'
+import { useAuthStore } from '@/stores/auth'
 import PryTopBar from '@/components/ui/PryTopBar.vue'
 import PryBottomNav from '@/components/ui/PryBottomNav.vue'
 import PryInput from '@/components/ui/PryInput.vue'
@@ -16,6 +17,7 @@ const CATEGORIAS = [
   { value: 'outros',   label: 'Outros' },
 ]
 
+const auth        = useAuthStore()
 const products    = ref([])
 const broadcast   = ref(null)
 const search      = ref('')
@@ -44,10 +46,11 @@ async function loadProducts(reset = false) {
 }
 
 async function loadBroadcast() {
+  if (!auth.isAuthenticated) return // endpoint requires auth
   try {
     const { data } = await api.get('/broadcasts', { params: { per_page: 1 } })
     broadcast.value = data.data?.[0] || null
-  } catch { /* ignore if not auth */ }
+  } catch { /* silent */ }
 }
 
 watch(search, () => {
