@@ -12,6 +12,7 @@ use App\Jobs\SendOtpSms;
 use App\Models\User;
 use App\Services\OtpService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
 class OtpController extends Controller
 {
@@ -22,6 +23,10 @@ class OtpController extends Controller
         $celular = $request->validated('celular');
 
         $codigo = $this->otpService->generate($celular);
+
+        if (app()->isLocal()) {
+            Log::info("[OTP DEV] celular={$celular} codigo={$codigo}");
+        }
 
         SendOtpSms::dispatch($celular, $codigo);
 
@@ -59,12 +64,14 @@ class OtpController extends Controller
         $token = $user->createToken('pwa-token')->plainTextToken;
 
         return response()->json([
-            'token' => $token,
-            'user' => [
-                'id' => $user->id,
-                'nome' => $user->nome,
-                'celular' => $user->celular,
-                'role' => $user->role,
+            'data' => [
+                'token' => $token,
+                'user'  => [
+                    'id'      => $user->id,
+                    'nome'    => $user->nome,
+                    'celular' => $user->celular,
+                    'role'    => $user->role,
+                ],
             ],
         ]);
     }
