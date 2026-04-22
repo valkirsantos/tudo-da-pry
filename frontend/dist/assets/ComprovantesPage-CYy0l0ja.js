@@ -1,0 +1,1 @@
+import{P as o,a as s}from"./PryBottomNav-B4ASE5Vl.js";import{_ as t,c as r,a as e,b as n,o as _}from"./index-jYlBVexq.js";const c={class:"page"},p={__name:"ComprovantesPage",setup(m){return(l,a)=>(_(),r("div",c,[e(o),a[0]||(a[0]=n("main",{class:"page__content"},null,-1)),e(s)]))}},f=t(p,[["__scopeId","data-v-256ab2eb"]]);export{f as default};

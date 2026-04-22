@@ -1,0 +1,1 @@
+import{P as o,a as t}from"./PryBottomNav-B4ASE5Vl.js";import{_ as s,c as r,a as e,b as n,o as _}from"./index-jYlBVexq.js";const c={class:"page"},p={__name:"LoginOtpPage",setup(m){return(d,a)=>(_(),r("div",c,[e(o),a[0]||(a[0]=n("main",{class:"page__content"},null,-1)),e(t)]))}},f=s(p,[["__scopeId","data-v-123fd7ae"]]);export{f as default};

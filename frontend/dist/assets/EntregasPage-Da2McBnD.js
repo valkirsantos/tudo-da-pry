@@ -1,0 +1,1 @@
+import{P as s,a as t}from"./PryBottomNav-B4ASE5Vl.js";import{_ as o,c as r,a as e,b as n,o as _}from"./index-jYlBVexq.js";const c={class:"page"},p={__name:"EntregasPage",setup(d){return(m,a)=>(_(),r("div",c,[e(s),a[0]||(a[0]=n("main",{class:"page__content"},null,-1)),e(t)]))}},g=o(p,[["__scopeId","data-v-d254ff2d"]]);export{g as default};
