@@ -13,6 +13,18 @@ const FILTROS = [
   { value: 'parcela', label: 'Parcelas' },
 ]
 
+const STATUS_TAG = {
+  pendente:  'pendente',
+  aprovado:  'ok',
+  rejeitado: 'warn',
+}
+
+const STATUS_LABEL = {
+  pendente:  'Pendente',
+  aprovado:  'Aprovado',
+  rejeitado: 'Rejeitado',
+}
+
 const proofs       = ref([])
 const filtro       = ref('')
 const loading      = ref(false)
@@ -27,7 +39,7 @@ const modalError   = ref('')
 async function load() {
   loading.value = true
   try {
-    const params = { status: 'pendente' }
+    const params = {}
     if (filtro.value) params.tipo = filtro.value
     const { data } = await api.get('/payment-proofs', { params })
     proofs.value = data.data
@@ -123,6 +135,18 @@ onMounted(load)
           </div>
         </div>
 
+        <!-- Download -->
+        <a
+          v-if="proof.download_url"
+          :href="proof.download_url"
+          :download="proof.nome_arquivo"
+          target="_blank"
+          class="download-btn"
+        >
+          ⬇ Baixar arquivo
+        </a>
+        <p v-else class="no-file">Arquivo não disponível</p>
+
         <div class="proof-card__meta">
           <div>
             <p class="proof-card__title">
@@ -131,10 +155,14 @@ onMounted(load)
             </p>
             <p class="proof-card__date">{{ formatDate(proof.created_at) }}</p>
           </div>
-          <PryTag variant="pendente">Pendente</PryTag>
+          <PryTag :variant="STATUS_TAG[proof.status]">{{ STATUS_LABEL[proof.status] }}</PryTag>
         </div>
 
-        <div class="proof-card__actions">
+        <p v-if="proof.motivo_rejeicao" class="proof-card__motivo">
+          Motivo: {{ proof.motivo_rejeicao }}
+        </p>
+
+        <div v-if="proof.status === 'pendente'" class="proof-card__actions">
           <PryButton
             variant="outline"
             full
@@ -154,7 +182,7 @@ onMounted(load)
 
       <div v-if="!loading && !proofs.length" class="empty">
         <p class="empty__icon">✅</p>
-        <p class="empty__msg">Nenhum comprovante pendente</p>
+        <p class="empty__msg">Nenhum comprovante encontrado</p>
       </div>
     </main>
 
@@ -229,9 +257,28 @@ onMounted(load)
 .proof-card__pdf { padding: 20px; font-size: 14px; color: var(--pry-mid); display: flex; align-items: center; gap: 8px; }
 
 .proof-card__meta { display: flex; justify-content: space-between; align-items: flex-start; }
-.proof-card__title { font-size: 13px; font-weight: 700; }
-.proof-card__date  { font-size: 12px; color: var(--pry-muted); margin-top: 2px; }
+.proof-card__title  { font-size: 13px; font-weight: 700; }
+.proof-card__date   { font-size: 12px; color: var(--pry-muted); margin-top: 2px; }
+.proof-card__motivo { font-size: 12px; color: #b45309; }
 .proof-card__actions { display: flex; gap: 8px; }
+
+.download-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--pry-border);
+  background: var(--pry-light);
+  color: var(--pry-dark);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  width: 100%;
+}
+.download-btn:active { background: var(--pry-border); }
+.no-file { font-size: 12px; color: var(--pry-muted); text-align: center; }
 
 .empty { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 48px 0; }
 .empty__icon { font-size: 48px; }

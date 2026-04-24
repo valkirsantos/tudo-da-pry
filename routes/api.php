@@ -31,6 +31,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/orders/{id}', [OrderController::class, 'show']);
         Route::get('/orders/{id}/installments', [InstallmentController::class, 'index']);
         Route::post('/payment-proofs', [PaymentProofController::class, 'store']);
+        Route::post('/payment-proofs/{id}/file', [PaymentProofController::class, 'storeFile']);
         Route::get('/notifications', [NotificationController::class, 'index']);
         Route::post('/notifications/read', [NotificationController::class, 'markRead']);
         Route::post('/push/subscribe', [NotificationController::class, 'subscribe']);

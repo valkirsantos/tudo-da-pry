@@ -12,6 +12,7 @@ use App\Services\S3PresignedService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class PaymentProofController extends Controller
@@ -155,10 +156,33 @@ class PaymentProofController extends Controller
         ]);
     }
 
+    public function storeFile(Request $request, int $id): JsonResponse
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'max:5120', 'mimes:jpeg,png,pdf'],
+        ]);
+
+        $proof = PaymentProof::findOrFail($id);
+
+        if ($request->user()->isCliente() && $proof->order->user_id !== $request->user()->id) {
+            return response()->json(['error' => true, 'message' => 'Não autorizado.'], 403);
+        }
+
+        Storage::disk('public')->putFileAs(
+            dirname($proof->path_s3),
+            $request->file('file'),
+            basename($proof->path_s3)
+        );
+
+        return response()->json(['data' => ['stored' => true]]);
+    }
+
     private function safeDownloadUrl(string $path): ?string
     {
         if (empty(config('filesystems.disks.s3.bucket'))) {
-            return null;
+            return Storage::disk('public')->exists($path)
+                ? Storage::disk('public')->url($path)
+                : null;
         }
 
         try {

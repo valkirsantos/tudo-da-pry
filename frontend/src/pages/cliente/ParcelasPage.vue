@@ -12,12 +12,15 @@ import PryButton from '@/components/ui/PryButton.vue'
 const route = useRoute()
 const orderId = route.params.id
 
+const MAX_SIZE = 5 * 1024 * 1024
+
 const installments = ref([])
 const loading      = ref(false)
 const uploading_id = ref(null)
 const files        = ref({})
+const fileErrors   = ref({})
 
-const { progress, uploading, error: uploadError, uploadProof } = useUpload()
+const { progress, uploading, uploadProof } = useUpload()
 
 const TAG_MAP = {
   pendente:            'pendente',
@@ -42,17 +45,35 @@ async function load() {
   }
 }
 
+const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'application/pdf']
+
 function onFileSelect(installmentId, e) {
-  files.value = { ...files.value, [installmentId]: e.target.files?.[0] }
+  const file = e.target.files?.[0]
+  fileErrors.value = { ...fileErrors.value, [installmentId]: '' }
+  if (!file) return
+  if (file.size > MAX_SIZE) {
+    fileErrors.value = { ...fileErrors.value, [installmentId]: 'Arquivo muito grande. Máximo permitido: 5MB.' }
+    e.target.value = ''
+    return
+  }
+  if (!ALLOWED_MIMES.includes(file.type)) {
+    fileErrors.value = { ...fileErrors.value, [installmentId]: 'Formato inválido. Use JPG, PNG ou PDF.' }
+    e.target.value = ''
+    return
+  }
+  files.value = { ...files.value, [installmentId]: file }
 }
 
 async function send(installment) {
   const file = files.value[installment.id]
   if (!file) return
   uploading_id.value = installment.id
+  fileErrors.value   = { ...fileErrors.value, [installment.id]: '' }
   try {
     await uploadProof({ file, orderId, installmentId: installment.id })
     await load()
+  } catch {
+    fileErrors.value = { ...fileErrors.value, [installment.id]: 'Erro ao enviar. Tente novamente.' }
   } finally {
     uploading_id.value = null
   }
@@ -96,7 +117,7 @@ onMounted(load)
             <input
               :id="`file-${inst.id}`"
               type="file"
-              accept="image/*,application/pdf"
+              accept="image/jpeg,image/png,application/pdf"
               hidden
               @change="onFileSelect(inst.id, $event)"
             />
@@ -121,7 +142,7 @@ onMounted(load)
               Enviar comprovante
             </PryButton>
           </div>
-          <p v-if="uploadError && uploading_id === inst.id" class="err">{{ uploadError }}</p>
+          <p v-if="fileErrors[inst.id]" class="err">{{ fileErrors[inst.id] }}</p>
         </template>
 
         <p v-if="inst.status === 'aguardando_validacao'" class="waiting-msg">

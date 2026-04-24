@@ -11,6 +11,9 @@ const router = useRouter()
 const route  = useRoute()
 const { progress, uploading, error, uploadProof } = useUpload()
 
+const MAX_SIZE     = 5 * 1024 * 1024
+const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'application/pdf']
+
 const order    = ref(null)
 const file     = ref(null)
 const dragOver = ref(false)
@@ -27,7 +30,17 @@ async function loadOrder() {
 
 function onFileSelect(e) {
   const f = e.target.files?.[0] || e.dataTransfer?.files?.[0]
-  if (f) file.value = f
+  if (!f) return
+  if (f.size > MAX_SIZE) {
+    error.value = 'Arquivo muito grande. Máximo permitido: 5MB.'
+    return
+  }
+  if (!ALLOWED_MIMES.includes(f.type)) {
+    error.value = 'Formato inválido. Use JPG, PNG ou PDF.'
+    return
+  }
+  error.value = null
+  file.value  = f
 }
 
 function onDrop(e) {
@@ -76,7 +89,7 @@ onMounted(loadOrder)
         @drop.prevent="onDrop"
         @click="$refs.fileInput.click()"
       >
-        <input ref="fileInput" type="file" accept="image/*,application/pdf" hidden @change="onFileSelect" />
+        <input ref="fileInput" type="file" accept="image/jpeg,image/png,application/pdf" hidden @change="onFileSelect" />
         <span class="drop-zone__icon">{{ file ? '📄' : '📤' }}</span>
         <p class="drop-zone__label">
           {{ file ? file.name : 'Toque para selecionar ou arraste o comprovante' }}
