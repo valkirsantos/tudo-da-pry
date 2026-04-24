@@ -105,7 +105,8 @@ async function confirmarVenda() {
   error.value          = ''
   try {
     const payload = {
-      user_id:        clienteSelecionado.value.id,
+      celular:        clienteSelecionado.value.celular,
+      nome:           clienteSelecionado.value.nome,
       tipo_pagamento: metodo.value,
       items: selectedItems.value.map(i => ({ product_id: i.id, quantidade: i.quantidade })),
     }
