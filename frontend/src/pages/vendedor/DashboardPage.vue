@@ -25,7 +25,7 @@ async function load() {
     ])
     const s = salesRes.data.data
     metrics.value = {
-      vendas_hoje:          s.total_hoje        ?? 0,
+      vendas_hoje:          s.total              ?? 0,
       pedidos_abertos:      s.pedidos_abertos   ?? 0,
       parcelas_vencendo:    s.parcelas_vencendo ?? 0,
       notificacoes_enviadas: s.notificacoes      ?? 0,

@@ -54,7 +54,9 @@ class PaymentProofController extends Controller
             'status'         => 'pendente',
         ]);
 
-        $uploadUrl = $this->s3Service->generateUploadUrl($path, $data['mime_type']);
+        $uploadUrl = empty(config('filesystems.disks.s3.bucket'))
+            ? null
+            : $this->s3Service->generateUploadUrl($path, $data['mime_type']);
 
         ComprovantEnviado::dispatch($proof->load('order'));
 
@@ -99,7 +101,7 @@ class PaymentProofController extends Controller
                     'nome'    => $proof->order->user->nome,
                     'celular' => $proof->order->user->celular,
                 ] : null,
-                'download_url'   => $this->s3Service->generateDownloadUrl($proof->path_s3),
+                'download_url'   => $this->safeDownloadUrl($proof->path_s3),
             ];
         });
 
@@ -148,6 +150,19 @@ class PaymentProofController extends Controller
             'data'    => $proof->fresh(),
             'message' => $data['action'] === 'approve' ? 'Comprovante aprovado.' : 'Comprovante rejeitado.',
         ]);
+    }
+
+    private function safeDownloadUrl(string $path): ?string
+    {
+        if (empty(config('filesystems.disks.s3.bucket'))) {
+            return null;
+        }
+
+        try {
+            return $this->s3Service->generateDownloadUrl($path);
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     private function processApproval(PaymentProof $proof): void
