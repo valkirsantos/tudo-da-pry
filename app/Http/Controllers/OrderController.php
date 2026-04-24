@@ -31,6 +31,10 @@ class OrderController extends Controller
             $query->where('user_id', $user->id);
         }
 
+        if ($request->filled('status')) {
+            $query->where('status_pedido', $request->input('status'));
+        }
+
         $orders = $query->paginate(15);
 
         return response()->json([
