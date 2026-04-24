@@ -27,13 +27,16 @@ export function useUpload() {
 
       const { upload_url, proof_id } = data.data
 
-      await axios.put(upload_url, file, {
-        headers: { 'Content-Type': mimeType },
-        onUploadProgress: (e) => {
-          progress.value = Math.round((e.loaded * 100) / e.total)
-        },
-      })
+      if (upload_url) {
+        await axios.put(upload_url, file, {
+          headers: { 'Content-Type': mimeType },
+          onUploadProgress: (e) => {
+            progress.value = Math.round((e.loaded * 100) / e.total)
+          },
+        })
+      }
 
+      progress.value = 100
       return proof_id
     } catch (e) {
       error.value = e.response?.data?.message || 'Erro ao enviar arquivo'

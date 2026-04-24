@@ -61,8 +61,10 @@ class PaymentProofController extends Controller
         ComprovantEnviado::dispatch($proof->load('order'));
 
         return response()->json([
-            'upload_url' => $uploadUrl,
-            'proof_id'   => $proof->id,
+            'data' => [
+                'upload_url' => $uploadUrl,
+                'proof_id'   => $proof->id,
+            ],
         ], 201);
     }
 
@@ -72,15 +74,16 @@ class PaymentProofController extends Controller
             ->latest();
 
         if ($request->filled('tipo')) {
-            if ($request->tipo === 'avista') {
+            $tipo = $request->input('tipo');
+            if ($tipo === 'avista') {
                 $query->whereNull('installment_id');
-            } elseif ($request->tipo === 'parcela') {
+            } elseif ($tipo === 'parcela') {
                 $query->whereNotNull('installment_id');
             }
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $query->where('status', $request->input('status'));
         }
 
         $proofs = $query->paginate(20);
